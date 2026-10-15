@@ -8,7 +8,7 @@ import type { PushEvent } from '@shared/ipc'
 import { bus } from '../src/main/bus'
 import { Kernel } from '../src/main/kernel'
 import { tempRepo, freePort } from './helpers'
-import { BLOCKER_RULE, HANDOFF_NOW, HANDOFF_REMINDER, Handoffs, LEAD_RULE, LEAD_SHARING_RULE, reviewRule, TEAMMATE_RULE, UPDATE_HEADER } from '../src/main/services/handoff'
+import { BLOCKER_RULE, HANDOFF_NOW, HANDOFF_REMINDER, Handoffs, LEAD_BUILD_RULE, LEAD_RULE, LEAD_SHARING_RULE, reviewRule, TEAMMATE_RULE, UPDATE_HEADER } from '../src/main/services/handoff'
 import { reviewTools } from '../src/main/services/reviewMcp'
 import { reviewPolicyOf } from '../src/main/services/settings'
 import { kindsFor } from '../src/main/services/lenses'
@@ -391,8 +391,16 @@ describe('with plan mode off, the Lead hands off only on a clear go-ahead (KERNE
     // LEAD_RULE's length on main before KERNEL-678. The rule was rewritten, not added to. KERNEL-745 added its one sentence
     // about mentions, 80 characters past that, KERNEL-747 its sentence about proposed hand-offs, 61 more, and KERNEL-777 its
     // sentence about limit replies, 176 more, and feat-review-messages-reach-named its sentence about reporting a message's
-    // answer and the review kind to name, 118 more. KERNEL-880 renamed room to project, 9 more.
-    expect(LEAD_RULE.length).toBeLessThanOrEqual(5839)
+    // answer and the review kind to name, 118 more. KERNEL-880 renamed room to project, 9 more. feat-lead-skips-cant-build-opener-in
+    // added its sentence about opening with the proposal, 124 more.
+    expect(LEAD_RULE.length).toBeLessThanOrEqual(5963)
+  })
+
+  it('opens with the proposal instead of saying it cannot build, and still never builds or skips the hand-off', () => {
+    expect(LEAD_RULE).toContain("open with the proposal, not with a note that you can't build it yourself")
+    expect(LEAD_BUILD_RULE).not.toContain("open with the proposal, not with a note that you can't build it yourself")
+    expect(LEAD_RULE).toContain('Never build a task yourself')
+    expect(LEAD_RULE).toContain('fits a plan-only role')
   })
 
   // KERNEL-692: Kernel is the Lead, so its rule speaks to Kernel and never about Kernel in the third person.
